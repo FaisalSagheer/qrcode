@@ -131,6 +131,7 @@ function Home() {
             placeholder="1500 or 1500.50"
             value={price}
             onChange={handlePriceChange}
+            maxLength={4}
             style={{
               width: "100%",
               padding: 10,
