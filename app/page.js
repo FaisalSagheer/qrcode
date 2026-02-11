@@ -1,65 +1,227 @@
-import Image from "next/image";
+'use client'
+import React, { useState } from 'react';
+import QRCode from "react-qr-code";
 
-export default function Home() {
+function Home() {
+  const [name, setName] = useState("");
+  const [mobile, setMobile] = useState("");
+  const [price, setPrice] = useState("");
+
+  const [generated, setGenerated] = useState(false);
+
+  // ─── Input Handlers with Regex Filtering ────────────────────────────────
+
+  const handleNameChange = (e) => {
+    // Allow letters, spaces, hyphens, apostrophes (common in names)
+    const value = e.target.value;
+    if (/^[\p{L}\s'-]*$/u.test(value) || value === "") {
+      setName(value);
+    }
+  };
+
+  const handleMobileChange = (e) => {
+    const value = e.target.value;
+    // Allow: +, digits only — typical Pakistani mobile patterns
+    if (/^[+]?[0-9]*$/.test(value)) {
+      setMobile(value);
+    }
+  };
+
+  const handlePriceChange = (e) => {
+    const value = e.target.value;
+    // Allow digits and at most one decimal point
+    if (/^\d*\.?\d*$/.test(value)) {
+      setPrice(value);
+    }
+  };
+
+  const qrValue = `Name: ${name.trim()}\nMobile: ${mobile.trim()}\nPrice: ${price.trim()} PKR`;
+
+  const handleGenerate = () => {
+    const trimmedName   = name.trim();
+    const trimmedMobile = mobile.trim();
+    const trimmedPrice  = price.trim();
+
+    if (!trimmedName || !trimmedMobile || !trimmedPrice) {
+      alert("Please fill in all fields!");
+      return;
+    }
+
+    // Optional: extra mobile validation (Pakistan common formats)
+    if (!/^((\+92|0092|92|0)[0-9]{10})$/.test(trimmedMobile)) {
+      alert("Please enter a valid Pakistani mobile number (e.g. +923001234567 or 03001234567)");
+      return;
+    }
+
+    // Optional: price should be > 0
+    if (Number(trimmedPrice) <= 0) {
+      alert("Price should be greater than 0");
+      return;
+    }
+
+    setGenerated(true);
+  };
+
+  const handleBack = () => {
+    setGenerated(false);
+  };
+
+  // ─── INPUT SCREEN ───────────────────────────────────────────────────────
+  if (!generated) {
+    return (
+      <div
+        style={{
+          padding: 24,
+          margin: "0 auto",
+          maxWidth: 420,
+          fontFamily: "system-ui, sans-serif",
+        }}
+        className="mt-40!"
+      >
+        <h2 style={{ textAlign: "center", marginBottom: 24 }}>
+          QR Code Generator
+        </h2>
+
+        <div style={{ marginBottom: 16 }}>
+          <label style={{ display: "block", marginBottom: 6, fontWeight: 500 }}>
+            Name
+          </label>
+          <input
+            type="text"
+            placeholder="Enter name"
+            value={name}
+            onChange={handleNameChange}
+            style={{
+              width: "100%",
+              padding: 10,
+              border: "1px solid #ccc",
+              borderRadius: 6,
+            }}
+          />
+        </div>
+
+        <div style={{ marginBottom: 16 }}>
+          <label style={{ display: "block", marginBottom: 6, fontWeight: 500 }}>
+            Mobile Number
+          </label>
+          <input
+            type="tel"           // better mobile keyboard on phones
+            placeholder="+923001234567"
+            maxLength={13}       // +92 + 10 digits = 13
+            value={mobile}
+            onChange={handleMobileChange}
+            style={{
+              width: "100%",
+              padding: 10,
+              border: "1px solid #ccc",
+              borderRadius: 6,
+            }}
+          />
+          <small style={{ color: "#666", display: "block", marginTop: 4 }}>
+            e.g. +923001234567 or 03001234567
+          </small>
+        </div>
+
+        <div style={{ marginBottom: 24 }}>
+          <label style={{ display: "block", marginBottom: 6, fontWeight: 500 }}>
+            Price (PKR)
+          </label>
+          <input
+            type="text"          // using text + regex → better control than type="number"
+            placeholder="1500 or 1500.50"
+            value={price}
+            onChange={handlePriceChange}
+            style={{
+              width: "100%",
+              padding: 10,
+              border: "1px solid #ccc",
+              borderRadius: 6,
+            }}
+          />
+        </div>
+
+        <button
+          onClick={handleGenerate}
+          style={{
+            width: "100%",
+            padding: "12px",
+            backgroundColor: "#2563eb",
+            color: "white",
+            border: "none",
+            borderRadius: 8,
+            fontSize: 16,
+            fontWeight: 500,
+            cursor: "pointer",
+          }}
+        >
+          Generate QR Code
+        </button>
+      </div>
+    );
+  }
+
+  // ─── QR SCREEN ──────────────────────────────────────────────────────────
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
+    <div
+      style={{
+        padding: 24,
+        maxWidth: 420,
+        margin: "0 auto",
+        fontFamily: "system-ui, sans-serif",
+        textAlign: "center",
+      }}
+    >
+      <div
+        style={{
+          height: "auto",
+          margin: "0 auto",
+          maxWidth: 260,
+          width: "100%",
+          background: "#fff",
+          padding: 20,
+          borderRadius: 16,
+          boxShadow: "0 6px 20px rgba(0,0,0,0.12)",
+        }}
+        className="mt-30!"
+      >
+        <QRCode
+          size={256}
+          style={{
+            height: "auto",
+            maxWidth: "100%",
+            width: "100%",
+          }}
+          value={qrValue}
+          level="Q"
         />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.js file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+      </div>
+
+      <p
+        style={{
+          color: "#444",          // changed from white → better visibility
+          fontSize: 15,
+          margin: "20px 0",
+        }}
+      >
+        Scan to view details
+      </p>
+
+      <button
+        onClick={handleBack}
+        style={{
+          background: "transparent",
+          border: "none",
+          color: "#2563eb",
+          fontSize: 15,
+          textDecoration: "underline",
+          cursor: "pointer",
+          padding: 0,
+        }}
+      >
+        ← Back to edit
+      </button>
     </div>
   );
 }
+
+export default Home;
