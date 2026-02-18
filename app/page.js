@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import QRCode from "react-qr-code";
 
 export default function LoyaltyApp() {
-  const [role, setRole] = useState('user');
+  const [role, setRole] = useState('admin');
   const [records, setRecords] = useState([]);
 
   // Transaction modal (Add / Subtract)
@@ -146,11 +146,11 @@ export default function LoyaltyApp() {
         <div className="max-w-6xl mx-auto px-6 py-3 flex justify-between items-center">
           <h1 className="text-xl font-bold text-gray-800">Loyalty Points App</h1>
           <div className="flex gap-3">
-            <button onClick={() => setRole('user')} className={`px-4 py-1.5 rounded text-sm font-medium transition ${role === 'user' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`}>
-              User View
-            </button>
             <button onClick={() => setRole('admin')} className={`px-4 py-1.5 rounded text-sm font-medium transition ${role === 'admin' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`}>
               Admin View
+            </button>
+            <button onClick={() => setRole('user')} className={`px-4 py-1.5 rounded text-sm font-medium transition ${role === 'user' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`}>
+              User View
             </button>
           </div>
         </div>
